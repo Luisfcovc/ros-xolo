@@ -32,6 +32,7 @@ services:
         condition: service_healthy
     expose: ["8000"]
     volumes:
+      - ${ROS_XOLO_CONFIG_PATH:-/srv/apps/ros-xolo/config}:/run/config:ro
       - ${ROS_XOLO_EXPORT_PATH:-/srv/apps/ros-xolo/private_exports}:/app/private_exports
       - ${ROS_XOLO_STATIC_PATH:-/srv/apps/ros-xolo/staticfiles}:/app/staticfiles
     networks: [ros_xolo_private, xolo_edge]

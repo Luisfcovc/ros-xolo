@@ -13,6 +13,7 @@ cd ros-xolo
 sudo install -d -m 0750 /srv/apps/ros-xolo/postgres
 sudo install -d -m 0750 /srv/apps/ros-xolo/private_exports
 sudo install -d -m 0750 /srv/apps/ros-xolo/staticfiles
+sudo install -d -m 0750 /srv/apps/ros-xolo/config
 sudo install -d -m 0750 /srv/backups/apps/ros-xolo
 docker network inspect xolo_edge >/dev/null
 ```
@@ -42,7 +43,8 @@ ROS_XOLO_TIME_ZONE=America/Mexico_City
 EXPORT_STORAGE_ROOT=/app/private_exports
 SESSION_COOKIE_SECURE=1
 CSRF_COOKIE_SECURE=1
-SECURE_SSL_REDIRECT=1
+# Cloudflare Tunnel termina TLS antes de Traefik; no forzar otra redirección en Django.
+SECURE_SSL_REDIRECT=0
 SECURE_HSTS_SECONDS=31536000
 SECURE_HSTS_INCLUDE_SUBDOMAINS=1
 SECURE_HSTS_PRELOAD=0
@@ -95,7 +97,9 @@ y consulta personal.
 ## Datos, respaldo y actualización
 
 Usar los comandos auditados de `docs/deployment/pilot.md` para crear cuentas y cargar un manifest
-revisado. No ejecutar `seed_demo` ni usar SQL directo contra la base del piloto.
+revisado. El manifest se guarda en `/srv/apps/ros-xolo/config/`, se monta como `/run/config/` de
+solo lectura y debe tener permisos `600`. No ejecutar `seed_demo` ni usar SQL directo contra la base
+del piloto.
 
 ```bash
 STAMP=$(date +%Y%m%d-%H%M%S)

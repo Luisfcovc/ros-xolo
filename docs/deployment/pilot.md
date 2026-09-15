@@ -9,11 +9,12 @@ Crear `.env` a partir de `.env.example` y proporcionar valores generados fuera d
 ```dotenv
 DJANGO_SECRET_KEY=<secreto-largo-y-aleatorio>
 DJANGO_DEBUG=0
-DJANGO_ALLOWED_HOSTS=horarios.example.org
+DJANGO_ALLOWED_HOSTS=planeacion.xolodev.com
 ROS_XOLO_TIME_ZONE=America/Mexico_City
 SESSION_COOKIE_SECURE=1
 CSRF_COOKIE_SECURE=1
-SECURE_SSL_REDIRECT=1
+# Cloudflare Tunnel termina TLS antes de Traefik.
+SECURE_SSL_REDIRECT=0
 SECURE_HSTS_SECONDS=31536000
 SECURE_HSTS_INCLUDE_SUBDOMAINS=1
 SECURE_HSTS_PRELOAD=0
@@ -52,15 +53,26 @@ Conectar el contenedor a la red privada del proxy y publicar solo 443. Servir `S
 
 ## Cuenta restringida y carga inicial
 
-Montar el manifest revisado como `/run/config/pilot-core.json` de solo lectura. Crear la cuenta inicial y cargar catálogos mediante el comando auditado:
+En XOLO-Core, guardar el manifest revisado como
+`/srv/apps/ros-xolo/config/pilot-core.json` y protegerlo: `chmod 600
+/srv/apps/ros-xolo/config/pilot-core.json`. `compose.production.yaml` lo monta como
+`/run/config/pilot-core.json` de solo lectura. Crear el administrador y las cuentas
+individuales sin poner contraseñas en el manifest ni en Git:
 
 ```bash
-docker compose run --rm web python manage.py createsuperuser --username operador-inicial
-docker compose run --rm web python manage.py bootstrap_core --input /run/config/pilot-core.json --actor operador-inicial --validate-only
-docker compose run --rm web python manage.py bootstrap_core --input /run/config/pilot-core.json --actor operador-inicial
+docker compose -f compose.production.yaml run --rm web python manage.py createsuperuser --username operador-inicial
+docker compose -f compose.production.yaml run --rm web python manage.py create_login --username planeador-piloto
+docker compose -f compose.production.yaml run --rm web python manage.py create_login --username empleado-piloto
+docker compose -f compose.production.yaml run --rm web python manage.py bootstrap_core --input /run/config/pilot-core.json --actor operador-inicial --validate-only
+docker compose -f compose.production.yaml run --rm web python manage.py bootstrap_core --input /run/config/pilot-core.json --actor operador-inicial
 ```
 
-El planeador debe ser distinto del dueño y recibir solo las sucursales necesarias. No usar cuentas compartidas ni modificar habilitaciones mediante SQL directo. No versionar datos personales ni contraseñas.
+El manifest debe incluir `organization_name` solo durante la primera carga, y las listas
+`branches`, `employees`, `memberships`, `roles`, `areas`, `stations`, `shifts`, `user_links`
+y `planner_grants`, con UUIDs estables. El nombre de cada cuenta en `user_links` y
+`planner_grants` debe existir previamente. El planeador debe ser distinto del dueño y recibir
+solo las sucursales necesarias. No usar cuentas compartidas ni modificar habilitaciones mediante
+SQL directo. No versionar datos personales ni contraseñas.
 
 ## Backup y ensayo de restauración
 
