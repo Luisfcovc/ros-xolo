@@ -31,8 +31,8 @@ Configurar secretos reales y privados:
 ```dotenv
 DJANGO_SECRET_KEY=<salida-de-openssl>
 DJANGO_DEBUG=0
-DJANGO_ALLOWED_HOSTS=horarios.xolodev.com
-ROS_XOLO_HOSTNAME=horarios.xolodev.com
+DJANGO_ALLOWED_HOSTS=planeacion.xolodev.com,localhost,127.0.0.1
+ROS_XOLO_HOSTNAME=planeacion.xolodev.com
 POSTGRES_DB=ros_xolo
 POSTGRES_USER=ros_xolo
 POSTGRES_PASSWORD=<secreto-distinto-y-largo>
@@ -72,7 +72,7 @@ docker logs ros-xolo-web --tail=100
 Agregar antes de `http_status:404` en `/home/francisco/docker/infra/cloudflared/config.yml`:
 
 ```yaml
-- hostname: horarios.xolodev.com
+- hostname: planeacion.xolodev.com
   service: http://traefik:80
 ```
 
@@ -81,12 +81,12 @@ cd /home/francisco/docker/infra/cloudflared
 docker compose restart
 ```
 
-Crear una aplicación Self-hosted de Cloudflare Access para `horarios.xolodev.com`. Access protege
+Crear una aplicación Self-hosted de Cloudflare Access para `planeacion.xolodev.com`. Access protege
 la red y Django conserva los roles específicos de planeador y empleado.
 
 ```bash
 docker run --rm --network xolo_edge curlimages/curl \
-  -H 'Host: horarios.xolodev.com' http://traefik:80/health
+  -H 'Host: planeacion.xolodev.com' http://traefik:80/health
 ```
 
 Debe responder `{"status": "ok"}`. Confirmar HTTPS, cookies Secure, login, autorización de sucursal

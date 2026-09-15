@@ -34,3 +34,6 @@ SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = "DENY"
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 SECURE_SSL_REDIRECT = os.getenv("SECURE_SSL_REDIRECT", "0") == "1"
+# Docker consulta este endpoint por la red interna sin TLS; el tráfico público pasa
+# antes por Cloudflare y Traefik, que sí fijan X-Forwarded-Proto.
+SECURE_REDIRECT_EXEMPT = [r"^health$"]
