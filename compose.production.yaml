@@ -1,0 +1,62 @@
+services:
+  db:
+    image: postgres:17
+    container_name: ros-xolo-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:?Define POSTGRES_DB in .env}
+      POSTGRES_USER: ${POSTGRES_USER:?Define POSTGRES_USER in .env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Define POSTGRES_PASSWORD in .env}
+    volumes:
+      - ${ROS_XOLO_POSTGRES_PATH:-/srv/apps/ros-xolo/postgres}:/var/lib/postgresql/data
+    networks: [ros_xolo_private]
+    security_opt: [no-new-privileges:true]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  web:
+    build: .
+    image: ros-xolo:${ROS_XOLO_IMAGE_TAG:-pilot}
+    container_name: ros-xolo-web
+    restart: unless-stopped
+    command: >-
+      sh -c "python manage.py collectstatic --noinput &&
+      exec gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3 --timeout 60 --access-logfile - --error-logfile -"
+    env_file: [.env]
+    depends_on:
+      db:
+        condition: service_healthy
+    expose: ["8000"]
+    volumes:
+      - ${ROS_XOLO_EXPORT_PATH:-/srv/apps/ros-xolo/private_exports}:/app/private_exports
+      - ${ROS_XOLO_STATIC_PATH:-/srv/apps/ros-xolo/staticfiles}:/app/staticfiles
+    networks: [ros_xolo_private, xolo_edge]
+    read_only: true
+    tmpfs: [/tmp:size=128m,mode=1777]
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
+    logging:
+      driver: json-file
+      options: {max-size: 10m, max-file: "3"}
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=xolo_edge
+      - traefik.http.routers.ros-xolo.rule=Host(`${ROS_XOLO_HOSTNAME:?Define ROS_XOLO_HOSTNAME in .env}`)
+      - traefik.http.routers.ros-xolo.entrypoints=web
+      - traefik.http.services.ros-xolo.loadbalancer.server.port=8000
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+networks:
+  ros_xolo_private:
+    internal: true
+  xolo_edge:
+    external: true
