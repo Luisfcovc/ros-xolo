@@ -1,0 +1,34 @@
+{% extends "base.html" %}{% load static %}{% block content %}
+<main id="planning-app" data-period-id="{{ period_id|default:'' }}">
+  <h1>Planeación de jornadas</h1>
+  <section aria-labelledby="period-title">
+    <h2 id="period-title">Periodo</h2>
+    <label>Sucursal <select id="branch" required><option value="">Cargando sucursales…</option></select></label>
+    <label>Periodo existente <select id="period" disabled><option value="">Selecciona una sucursal</option></select></label>
+    <label>Semana nueva <input id="week" type="week"></label>
+    <button type="button" id="create-period">Crear periodo semanal</button>
+    <p id="period-state" role="status"></p>
+  </section>
+  <p id="save-state" role="status">Selecciona un periodo para cargar su borrador.</p>
+  <section aria-labelledby="exceptions-title">
+    <h2 id="exceptions-title">Excepciones</h2><ul id="alerts"></ul>
+    <p hidden data-alert-type="initial_publication_pending">Publicación inicial pendiente.</p>
+    <p hidden data-alert-type="revision_pending">Revisión pendiente.</p>
+    <p hidden data-alert-type="employee_ineligible_future">Empleado no elegible con jornadas futuras.</p>
+  </section>
+  <section aria-labelledby="publish-summary-title" id="publish-summary">
+    <h2 id="publish-summary-title">Resumen antes de publicar</h2>
+    <p>Versión base: <strong id="base-version">Sin publicación</strong></p>
+    <p id="pending-summary">Carga el borrador para revisar si hay cambios pendientes.</p>
+    <p>Solo se publicará el contenido que ya esté guardado.</p>
+  </section>
+  <section aria-labelledby="assignments-title">
+    <h2 id="assignments-title">Jornadas</h2><p id="field-errors" role="alert"></p>
+    <div id="assignments"></div><button type="button" id="add-assignment">Agregar jornada</button>
+    {% include "programacion/_assignment_form.html" %}
+  </section>
+  <button type="button" id="save-draft">Guardar cambios</button>
+  <button type="button" id="refresh-draft">Refrescar</button>
+  <button type="button" id="publish">Publicar contenido guardado</button>
+  {% include "programacion/export_controls.html" %}
+</main><script src="{% static 'programacion/assignment_form.js' %}"></script><script src="{% static 'programacion/planning.js' %}"></script>{% endblock %}

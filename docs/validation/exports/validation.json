@@ -1,0 +1,107 @@
+{
+  "scenario": "reference-week",
+  "period_id": "bef619c0-ae25-4431-9654-b5c434b08cfe",
+  "formats": {
+    "png": {
+      "mime_type": "image/png",
+      "width": 1600,
+      "height": 3049,
+      "byte_size": 549913,
+      "sha256": "4b6796f49ec742a42da3ba89ed61a8f117f5471ba35b55a3cc3c15ecf97f1240",
+      "manifest": {
+        "date_to": "2026-09-27",
+        "sources": [
+          {
+            "version": 1,
+            "period_id": "bef619c0-ae25-4431-9654-b5c434b08cfe",
+            "publication_id": "4f2cb7bc-78c5-4935-b135-75813b9f5fcb"
+          }
+        ],
+        "branch_id": "f51e79c0-8eba-54da-80e7-fca00b9fb031",
+        "date_from": "2026-09-21",
+        "verified_at": "2026-09-15T09:08:28.222356+00:00",
+        "payload_hash": "a85eadd669c0245e1ae5ecad1ef70b75210b367d57a680bfa068667ff0d547ca",
+        "manifest_hash": "87bb450b308511a646f12aef2fed9d0ceef03645cfd10a66826493d31f293e23",
+        "expected_counts": {
+          "days": 7,
+          "rows": 20,
+          "breaks": 0,
+          "assignments": 20,
+          "continuities": 0,
+          "continuity_breaks": 0
+        },
+        "organization_id": "4ac99499-f874-5a6a-8466-5cb761ee0ed6",
+        "selected_period_id": "bef619c0-ae25-4431-9654-b5c434b08cfe",
+        "selected_publication_id": "4f2cb7bc-78c5-4935-b135-75813b9f5fcb"
+      },
+      "expected_counts": {
+        "days": 7,
+        "rows": 20,
+        "breaks": 0,
+        "assignments": 20,
+        "continuities": 0,
+        "continuity_breaks": 0
+      }
+    },
+    "pdf": {
+      "mime_type": "application/pdf",
+      "pages": 18,
+      "byte_size": 59162,
+      "sha256": "5192b3c4227991061f550c4bca57cc40f03c9e84d203b4d157278153727c3756",
+      "manifest": {
+        "date_to": "2026-09-27",
+        "sources": [
+          {
+            "version": 1,
+            "period_id": "bef619c0-ae25-4431-9654-b5c434b08cfe",
+            "publication_id": "4f2cb7bc-78c5-4935-b135-75813b9f5fcb"
+          }
+        ],
+        "branch_id": "f51e79c0-8eba-54da-80e7-fca00b9fb031",
+        "date_from": "2026-09-21",
+        "verified_at": "2026-09-15T09:08:33.991486+00:00",
+        "payload_hash": "455814fad8558612bd5ef39d6cf4511fadc411d7586f1370faecc43c0b690ef0",
+        "manifest_hash": "87bb450b308511a646f12aef2fed9d0ceef03645cfd10a66826493d31f293e23",
+        "expected_counts": {
+          "days": 7,
+          "rows": 20,
+          "breaks": 0,
+          "assignments": 20,
+          "continuities": 0,
+          "continuity_breaks": 0
+        },
+        "organization_id": "4ac99499-f874-5a6a-8466-5cb761ee0ed6",
+        "selected_period_id": "bef619c0-ae25-4431-9654-b5c434b08cfe",
+        "selected_publication_id": "4f2cb7bc-78c5-4935-b135-75813b9f5fcb"
+      },
+      "expected_counts": {
+        "days": 7,
+        "rows": 20,
+        "breaks": 0,
+        "assignments": 20,
+        "continuities": 0,
+        "continuity_breaks": 0
+      },
+      "page_images": [
+        "reference-week-page-01.png",
+        "reference-week-page-02.png",
+        "reference-week-page-03.png",
+        "reference-week-page-04.png",
+        "reference-week-page-05.png",
+        "reference-week-page-06.png",
+        "reference-week-page-07.png",
+        "reference-week-page-08.png",
+        "reference-week-page-09.png",
+        "reference-week-page-10.png",
+        "reference-week-page-11.png",
+        "reference-week-page-12.png",
+        "reference-week-page-13.png",
+        "reference-week-page-14.png",
+        "reference-week-page-15.png",
+        "reference-week-page-16.png",
+        "reference-week-page-17.png",
+        "reference-week-page-18.png"
+      ]
+    }
+  }
+}

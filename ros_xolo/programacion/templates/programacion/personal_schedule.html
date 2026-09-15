@@ -1,0 +1,3 @@
+{% extends "base.html" %}{% load static %}{% block content %}
+<main id="personal-schedule" data-api="/api/v1/me/schedule"><h1>Mi horario</h1><label>Desde <input id="schedule-from" type="date"></label><label>Hasta <input id="schedule-to" type="date"></label><button type="button" id="refresh-schedule">Consultar</button><p id="schedule-status" role="status">Verificando programación…</p><noscript>Activa JavaScript para consultar una programación verificada.</noscript><section id="schedule-content" hidden></section></main>
+<script src="{% static 'programacion/personal_schedule.js' %}"></script>{% endblock %}

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Iniciar sesión · ROS-XOLO{% endblock %}
+{% block content %}
+<section aria-labelledby="login-title">
+  <h1 id="login-title">Iniciar sesión</h1>
+  <p>Accede con la cuenta asignada por tu organización.</p>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    <p><label for="{{ form.username.id_for_label }}">Usuario</label>{{ form.username }}</p>
+    <p><label for="{{ form.password.id_for_label }}">Contraseña</label>{{ form.password }}</p>
+    <input type="hidden" name="next" value="{{ next }}">
+    <button type="submit">Entrar</button>
+  </form>
+</section>
+{% endblock %}

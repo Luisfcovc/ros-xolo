@@ -1,0 +1,42 @@
+<section id="export-controls" aria-labelledby="export-title" data-period-id="{{ period_id|default:'' }}">
+  <h2 id="export-title">Exportar versión publicada</h2>
+  <p>Genera una copia privada y estática de la versión publicada actual.</p>
+  <p id="export-pending-warning" hidden>Se exportará la versión publicada; los cambios pendientes no están incluidos.</p>
+  <form id="export-form">
+    {% csrf_token %}
+    <fieldset>
+      <legend>Formato</legend>
+      <label><input type="radio" name="export-format" value="png" checked> PNG completo</label>
+      <label><input type="radio" name="export-format" value="pdf"> PDF A4 horizontal</label>
+    </fieldset>
+    <button type="submit" id="request-export" {% if not period_id %}disabled{% endif %}>Generar y descargar</button>
+  </form>
+  <p id="export-status" role="status">{% if not period_id %}Selecciona un periodo para exportar.{% endif %}</p>
+</section>
+<script>
+(() => {
+  const controls = document.querySelector('#export-controls');
+  if (!controls || !controls.dataset.periodId) return;
+  const button = controls.querySelector('#request-export');
+  const status = controls.querySelector('#export-status');
+  const warning = controls.querySelector('#export-pending-warning');
+  document.addEventListener('schedule:draft-loaded', event => {
+    warning.hidden = !event.detail?.pendingDraftExcluded;
+  });
+  controls.querySelector('#export-form').addEventListener('submit', async event => {
+    event.preventDefault();
+    button.disabled = true; status.textContent = 'Generando la copia completa…';
+    const format = controls.querySelector('[name="export-format"]:checked').value;
+    try {
+      const response = await fetch(`/api/v1/planning/periods/${controls.dataset.periodId}/exports`, {
+        method: 'POST', headers: {'Content-Type': 'application/json', 'X-CSRFToken': controls.querySelector('[name="csrfmiddlewaretoken"]').value}, body: JSON.stringify({format}),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error?.message || 'No se pudo generar la exportación.');
+      status.textContent = `Exportación ${format.toUpperCase()} lista.`;
+      window.location.assign(data.download_url);
+    } catch (error) { status.textContent = error.message; }
+    finally { button.disabled = false; }
+  });
+})();
+</script>

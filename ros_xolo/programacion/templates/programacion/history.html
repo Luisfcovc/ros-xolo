@@ -1,0 +1,55 @@
+{% extends "base.html" %}{% block content %}
+<main id="history-app" data-period-id="{{ period_id|default:'' }}">
+  <h1>Historial de programación</h1>
+  <p id="history-state" role="status">Cargando versiones…</p>
+  <nav aria-label="Páginas del historial">
+    <button id="history-more" type="button">Cargar versiones anteriores</button>
+  </nav>
+  <ol id="versions"></ol>
+  <template id="version-template">
+    <li class="history-version">
+      <h2 data-version></h2>
+      <p><span data-current></span> · Publicada por <span data-author></span> el <time data-date></time></p>
+      <section><h3>Cambios</h3><div data-changes aria-live="polite"></div></section>
+    </li>
+  </template>
+</main>
+<script>
+(() => {
+  const app = document.querySelector('#history-app'); if (!app || !app.dataset.periodId) return;
+  let cursor = null;
+  async function load() {
+    const suffix = cursor ? `?limit=50&cursor=${encodeURIComponent(cursor)}` : '?limit=50';
+    const response = await fetch(`/api/v1/planning/periods/${app.dataset.periodId}/versions${suffix}`, {cache: 'no-store'});
+    if (!response.ok) { document.querySelector('#history-state').textContent = 'No se pudo cargar el historial.'; return; }
+    const data = await response.json();
+    for (const version of data.versions) {
+      const node = document.querySelector('#version-template').content.cloneNode(true);
+      node.querySelector('[data-version]').textContent = `Versión ${version.version}`;
+      node.querySelector('[data-current]').textContent = version.is_current ? 'Vigente' : 'Versión histórica';
+      node.querySelector('[data-author]').textContent = version.publisher_label;
+      node.querySelector('[data-date]').textContent = version.published_at;
+      const changeContainer = node.querySelector('[data-changes]');
+      changeContainer.textContent = `${version.change_count} diferencias; cargando valores before/after…`;
+      document.querySelector('#versions').append(node);
+      const detailResponse = await fetch(`/api/v1/planning/periods/${app.dataset.periodId}/versions/${version.version}`, {cache: 'no-store'});
+      if (detailResponse.ok) {
+        const detail = await detailResponse.json(); changeContainer.replaceChildren();
+        for (const change of detail.changes) {
+          const article = document.createElement('article');
+          const title = document.createElement('h4'); title.textContent = change.kind.startsWith('roster_') ? `Cambio de lista: ${change.kind}` : `Jornada: ${change.kind}`;
+          const before = document.createElement('pre'); before.textContent = `Antes: ${JSON.stringify(change.before)}`;
+          const after = document.createElement('pre'); after.textContent = `Después: ${JSON.stringify(change.after)}`;
+          article.append(title, before, after); changeContainer.append(article);
+        }
+        if (!detail.changes.length) changeContainer.textContent = 'Publicación inicial sin diferencias previas.';
+      }
+    }
+    cursor = data.next_cursor;
+    document.querySelector('#history-more').hidden = !cursor;
+    document.querySelector('#history-state').textContent = 'Historial actualizado.';
+  }
+  document.querySelector('#history-more').addEventListener('click', load); load();
+})();
+</script>
+{% endblock %}

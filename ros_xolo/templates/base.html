@@ -1,0 +1,8 @@
+<!doctype html>
+<html lang="es-MX">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>{% block title %}ROS-XOLO{% endblock %}</title></head>
+<body>
+<header><a href="/planning/">Planeación</a><nav aria-label="Consulta personal"><a href="/me/schedule/">Mi horario</a>{% if user.is_authenticated %}<form action="/logout/" method="post" style="display:inline">{% csrf_token %}<button type="submit">Salir</button></form>{% endif %}</nav></header>
+<main id="main-content">{% block content %}{% endblock %}</main>
+</body>
+</html>

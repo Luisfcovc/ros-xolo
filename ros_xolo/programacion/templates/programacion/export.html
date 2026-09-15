@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="es-MX">
+<head>
+  <meta charset="utf-8">
+  <title>Programación publicada · {{ export.period.branch_label }}</title>
+  <style>
+    :root { color: #17211b; font-family: Arial, "DejaVu Sans", sans-serif; }
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 24px; font-size: 16px; background: #fff; }
+    h1, h2, h3, p { margin: 0 0 8px; }
+    .context { border: 2px solid #244c36; padding: 14px; margin-bottom: 18px; background: #f2f7f4; }
+    .context-grid { display: grid; grid-template-columns: repeat(3, minmax(220px, 1fr)); gap: 8px 16px; }
+    .static-warning { font-weight: 700; color: #6e260e; }
+    .schedule { width: 100%; border-collapse: collapse; table-layout: fixed; margin-bottom: 22px; }
+    .schedule th, .schedule td { border: 1px solid #66736b; padding: 8px; vertical-align: top; overflow-wrap: anywhere; }
+    .schedule thead th { background: #dfece4; }
+    .employee { width: 190px; background: #f6f6f3; }
+    .assignment, .continuity { border-left: 4px solid #2f6848; padding-left: 8px; margin-bottom: 10px; }
+    .assignment:last-child, .continuity:last-child { margin-bottom: 0; }
+    .breaks { margin: 5px 0 0; padding-left: 20px; }
+    .empty { color: #4c5750; font-style: italic; }
+    .continuities { break-before: auto; }
+    .continuity { break-inside: avoid; border: 1px solid #66736b; border-left: 4px solid #8a5a14; padding: 10px; }
+    .print-schedule { display: none; }
+    .print-footer { display: none; }
+    @page { size: A4 landscape; margin: 25mm 12mm 18mm; }
+    @media print {
+      body { padding: 0; font-size: 10pt; }
+      .context { padding: 2mm 3mm; font-size: 10pt; }
+      .context h1 { font-size: 12pt; display: inline; margin-right: 8mm; }
+      .context-grid { display: inline; }
+      .context-grid p { display: inline; margin-right: 5mm; }
+      .schedule { display: none; }
+      .print-schedule { display: block; }
+      .print-employee { break-before: auto; }
+      .print-day { border-top: 1px solid #66736b; padding: 2mm 0; }
+      .print-assignment { border-left: 1mm solid #2f6848; padding-left: 2mm; margin-bottom: 2mm; }
+      .print-footer { display: none; }
+    }
+  </style>
+</head>
+<body data-export-root data-payload-hash="{{ export.payload_hash }}" data-format="{{ export_format }}">
+  <header class="context">
+    <h1>{{ export.period.branch_label }}</h1>
+    <div class="context-grid">
+      <p><strong>Periodo:</strong> {{ export.period.date_from }}–{{ export.period.date_to }}</p>
+      <p><strong>Zona:</strong> {{ export.period.timezone }}</p>
+      <p><strong>Versión local:</strong> v{{ export.publication.version }}</p>
+      <p><strong>Publicó:</strong> {{ export.publication.publisher_label }}</p>
+      <p><strong>Publicada:</strong> {{ export.publication.published_at }}</p>
+      <p><strong>Generada/verificada:</strong> {{ export.manifest.verified_at }}</p>
+      <p><strong>Fuentes:</strong>{% for source in export.manifest.sources %} {{ source.period_id }} v{{ source.version }}{% if not forloop.last %};{% endif %}{% endfor %}</p>
+    </div>
+    <p class="static-warning">Copia estática. Consulta la versión vigente en ROS-XOLO.</p>
+  </header>
+
+  <main>
+    <h2>Jornadas publicadas</h2>
+    <table class="schedule">
+      <thead>
+        <tr>
+          <th class="employee" scope="col">Empleado</th>
+          {% for day in export.days %}<th scope="col" data-export-kind="days" data-export-id="{{ day }}">{{ day }}</th>{% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in export.schedule_rows %}
+          <tr data-export-kind="rows" data-export-id="{{ row.employee_id }}">
+            <th class="employee" scope="row">{{ row.employee_label }}</th>
+            {% for cell in row.cells %}
+              <td>
+                {% for assignment in cell.assignments %}
+                  <article class="assignment" data-export-kind="assignments" data-export-id="{{ assignment.assignment_id }}">
+                    <strong>{{ assignment.start_local }} → {{ assignment.end_local }}</strong>
+                    <div>{{ assignment.labels.role|default:"Sin rol" }}{% if assignment.labels.station %} · {{ assignment.labels.station }}{% endif %}</div>
+                    {% if assignment.labels.shift %}<div>Turno: {{ assignment.labels.shift }}</div>{% endif %}
+                    {% if assignment.breaks %}
+                      <ul class="breaks">
+                        {% for break in assignment.breaks %}
+                          <li data-export-kind="breaks" data-export-id="{{ break.break_id }}">Pausa: {{ break.start_local }} → {{ break.end_local }}</li>
+                        {% endfor %}
+                      </ul>
+                    {% else %}<div>Sin pausas programadas.</div>{% endif %}
+                  </article>
+                {% empty %}<span class="empty">Sin jornada asignada.</span>{% endfor %}
+              </td>
+            {% endfor %}
+          </tr>
+        {% empty %}
+          <tr><td colspan="{{ export.days|length|add:1 }}" class="empty">La publicación no contiene filas de empleados.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <section class="print-schedule" aria-label="Jornadas publicadas para impresión">
+      {% for row in export.schedule_rows %}
+        <article class="print-employee">
+          <h2>{{ row.employee_label }}</h2>
+          {% for cell in row.cells %}
+            <section class="print-day">
+              <h3>{{ cell.date }}</h3>
+              {% for assignment in cell.assignments %}
+                <article class="print-assignment">
+                  <strong>{{ assignment.start_local }} → {{ assignment.end_local }}</strong>
+                  <p>{{ assignment.labels.role|default:"Sin rol" }}{% if assignment.labels.station %} · {{ assignment.labels.station }}{% endif %}</p>
+                  {% if assignment.breaks %}<ul>{% for break in assignment.breaks %}<li>Pausa: {{ break.start_local }} → {{ break.end_local }}</li>{% endfor %}</ul>{% else %}<p>Sin pausas programadas.</p>{% endif %}
+                </article>
+              {% empty %}<p class="empty">Sin jornada asignada.</p>{% endfor %}
+            </section>
+          {% endfor %}
+        </article>
+      {% empty %}<p class="empty">La publicación no contiene filas de empleados.</p>{% endfor %}
+    </section>
+
+    <section class="continuities">
+      <h2>Continuidades de otros periodos</h2>
+      {% for assignment in export.continuities %}
+        <article class="continuity" data-export-kind="continuities" data-export-id="{{ assignment.origin_publication_id }}:{{ assignment.assignment_id }}">
+          <h3>{{ assignment.labels.employee }}</h3>
+          <p><strong>{{ assignment.start_local }} → {{ assignment.end_local }}</strong> ({{ assignment.timezone }})</p>
+          <p>{{ assignment.labels.role|default:"Sin rol" }}{% if assignment.labels.station %} · {{ assignment.labels.station }}{% endif %}</p>
+          <p>Origen: periodo {{ assignment.origin_period_id }}, versión {{ assignment.origin_version }}.</p>
+          {% if assignment.breaks %}
+            <ul class="breaks">
+              {% for break in assignment.breaks %}
+                <li data-export-kind="continuity_breaks" data-export-id="{{ break.break_id }}">Pausa: {{ break.start_local }} → {{ break.end_local }}</li>
+              {% endfor %}
+            </ul>
+          {% else %}<p>Sin pausas programadas.</p>{% endif %}
+        </article>
+      {% empty %}<p class="empty">Sin continuidades publicadas para este periodo.</p>{% endfor %}
+    </section>
+
+    <section>
+      <h2>Manifiesto de versiones</h2>
+      <ul>
+        {% for source in export.manifest.sources %}
+          <li>Periodo {{ source.period_id }} · publicación {{ source.publication_id }} · v{{ source.version }}</li>
+        {% endfor %}
+      </ul>
+      <p>Hash del manifiesto: {{ export.manifest.manifest_hash }}</p>
+      <p>Hash del payload: {{ export.payload_hash }}</p>
+    </section>
+  </main>
+  <footer class="print-footer">{{ export.period.branch_label }} · {{ export.period.date_from }}–{{ export.period.date_to }} · v{{ export.publication.version }} · página <span class="page-number"></span></footer>
+</body>
+</html>

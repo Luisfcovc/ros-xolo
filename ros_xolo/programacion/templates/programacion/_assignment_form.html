@@ -1,0 +1,27 @@
+<template id="assignment-template">
+  <fieldset class="assignment">
+    <legend>Jornada</legend>
+    <label>Empleado <select required data-field="employee_id"></select><span data-field-errors="employee_id"></span></label>
+    <label>Inicio <input required type="datetime-local" data-field="starts_at"><span data-field-errors="starts_at"></span></label>
+    <label>Fin <input required type="datetime-local" data-field="ends_at"><span data-field-errors="ends_at"></span></label>
+    <label>Rol <select data-field="role_id"></select><span data-field-errors="role_id"></span></label>
+    <label>Estación <input data-field="station_id"><span data-field-errors="station_id"></span></label>
+    <fieldset class="breaks" aria-label="Pausas programadas">
+      <legend>Pausas programadas</legend>
+      <p class="break-hint">Opcionales; cada pausa debe estar contenida en la jornada.</p>
+      <div data-break-list></div>
+      <button type="button" data-add-break>Agregar pausa</button>
+      <span data-field-errors="breaks"></span>
+    </fieldset>
+    <button type="button" data-remove>Retirar</button>
+  </fieldset>
+</template>
+<template id="break-template">
+  <fieldset class="break">
+    <legend>Descanso</legend>
+    <label>Inicio <input required type="datetime-local" data-break-field="starts_at"><span data-break-errors="starts_at"></span></label>
+    <label>Fin <input required type="datetime-local" data-break-field="ends_at"><span data-break-errors="ends_at"></span></label>
+    <span data-break-errors="interval"></span>
+    <button type="button" data-remove-break>Retirar pausa</button>
+  </fieldset>
+</template>
