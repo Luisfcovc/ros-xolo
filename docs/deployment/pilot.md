@@ -10,6 +10,7 @@ Crear `.env` a partir de `.env.example` y proporcionar valores generados fuera d
 DJANGO_SECRET_KEY=<secreto-largo-y-aleatorio>
 DJANGO_DEBUG=0
 DJANGO_ALLOWED_HOSTS=planeacion.xolodev.com
+DJANGO_CSRF_TRUSTED_ORIGINS=https://planeacion.xolodev.com
 ROS_XOLO_TIME_ZONE=America/Mexico_City
 SESSION_COOKIE_SECURE=1
 CSRF_COOKIE_SECURE=1

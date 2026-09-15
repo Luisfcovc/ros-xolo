@@ -33,6 +33,7 @@ Configurar secretos reales y privados:
 DJANGO_SECRET_KEY=<salida-de-openssl>
 DJANGO_DEBUG=0
 DJANGO_ALLOWED_HOSTS=planeacion.xolodev.com,localhost,127.0.0.1
+DJANGO_CSRF_TRUSTED_ORIGINS=https://planeacion.xolodev.com
 ROS_XOLO_HOSTNAME=planeacion.xolodev.com
 POSTGRES_DB=ros_xolo
 POSTGRES_USER=ros_xolo
